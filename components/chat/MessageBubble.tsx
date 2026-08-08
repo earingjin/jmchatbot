@@ -1,3 +1,5 @@
+import { COLORS, SHADOW } from '@/config/theme';
+
 export interface ChatMessageView {
   role: 'assistant' | 'user';
   text: string;
@@ -11,10 +13,10 @@ export function MessageBubble({ message }: { message: ChatMessageView }) {
         style={{
           maxWidth: '80%',
           padding: '10px 14px',
-          borderRadius: 14,
-          background: isUser ? '#2563eb' : '#fff',
-          color: isUser ? '#fff' : '#1a1a1a',
-          border: isUser ? 'none' : '1px solid #e5e5e5',
+          borderRadius: 16,
+          background: isUser ? COLORS.accent : COLORS.card,
+          color: isUser ? '#fff' : COLORS.text,
+          boxShadow: isUser ? 'none' : SHADOW.soft,
           whiteSpace: 'pre-wrap',
           lineHeight: 1.5,
           fontSize: 14,

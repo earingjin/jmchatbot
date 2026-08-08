@@ -5,6 +5,7 @@ import { ButtonChips } from '@/components/chat/ButtonChips';
 import { MessageBubble, type ChatMessageView } from '@/components/chat/MessageBubble';
 import { RatingPrompt } from '@/components/chat/RatingPrompt';
 import { stripButtons } from '@/lib/stateTag';
+import { COLORS, RADIUS } from '@/config/theme';
 
 const INITIAL_BUTTONS = ['검사 방법', '검사 링크/로그인', '검사 진행 오류', '결과 확인'];
 
@@ -74,7 +75,7 @@ export function ChatWindow() {
             )}
           </div>
         ))}
-        {loading && <p style={{ color: '#999', fontSize: 13 }}>답변 작성 중...</p>}
+        {loading && <p style={{ color: COLORS.textMuted, fontSize: 13 }}>답변 작성 중...</p>}
       </div>
 
       {ended && sessionId && <RatingPrompt sessionId={sessionId} />}
@@ -94,8 +95,9 @@ export function ChatWindow() {
           style={{
             flex: 1,
             padding: '12px 14px',
-            borderRadius: 10,
-            border: '1px solid #ddd',
+            borderRadius: RADIUS.md,
+            border: `1px solid ${COLORS.border}`,
+            background: COLORS.card,
             fontSize: 14,
           }}
         />
@@ -104,11 +106,11 @@ export function ChatWindow() {
           disabled={loading || !input.trim()}
           style={{
             padding: '12px 18px',
-            borderRadius: 10,
+            borderRadius: RADIUS.md,
             border: 'none',
-            background: '#2563eb',
+            background: COLORS.accent,
             color: '#fff',
-            fontWeight: 600,
+            fontWeight: 700,
             opacity: loading || !input.trim() ? 0.5 : 1,
           }}
         >
