@@ -45,6 +45,52 @@ class AnthropicLLMClient implements LLMClient {
   }
 }
 
+class GeminiLLMClient implements LLMClient {
+  constructor(
+    private apiKey: string,
+    private model: string,
+  ) {}
+
+  async send(messages: LLMMessage[]): Promise<string> {
+    const system = messages.find((m) => m.role === 'system')?.content ?? '';
+    const contents = messages
+      .filter((m) => m.role !== 'system')
+      .map((m) => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }],
+      }));
+
+    const model = this.model.replace(/^models\//, '').toLowerCase();
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-goog-api-key': this.apiKey,
+        },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents,
+          generationConfig: {
+            temperature: 0.5,
+            maxOutputTokens: 800,
+          },
+        }),
+      },
+    );
+
+    if (!res.ok) {
+      throw new Error(`Gemini API error ${res.status}: ${await res.text()}`);
+    }
+
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts
+      ?.map((part: { text?: string }) => part.text ?? '')
+      .join('') ?? '';
+  }
+}
+
 function withState(text: string, state: { category: string | null; topic: string | null; outcome: string }) {
   return `${text}\n<!--STATE:${JSON.stringify(state)}-->`;
 }
@@ -115,6 +161,15 @@ class MockLLMClient implements LLMClient {
 
 export function createLLMClient(): LLMClient {
   const provider = process.env.LLM_PROVIDER ?? 'mock';
+
+  if (provider === 'gemini') {
+    const apiKey = process.env.GEMINI_API_KEY;
+    const model = process.env.GEMINI_MODEL;
+    if (!apiKey || !model) {
+      throw new Error('LLM_PROVIDER=gemini requires GEMINI_API_KEY and GEMINI_MODEL to be set.');
+    }
+    return new GeminiLLMClient(apiKey, model);
+  }
 
   if (provider === 'anthropic') {
     const apiKey = process.env.ANTHROPIC_API_KEY;

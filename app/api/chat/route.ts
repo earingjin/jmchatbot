@@ -7,6 +7,8 @@ import { store } from '@/lib/store';
 import { SYSTEM_PROMPT } from '@/lib/systemPrompt';
 
 const MAX_MESSAGE_LENGTH = 300;
+const INTERNAL_INSTRUCTION_PATTERN =
+  /sentence\s*limit|brackets?\s*constraint|system\s*prompt|출력\s*형식\s*규칙|내부\s*지침/i;
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -50,9 +52,32 @@ export async function POST(request: Request) {
     ...history.map((m) => ({ role: m.role, content: m.content }) as LLMMessage),
   ];
 
-  const llm = createLLMClient();
-  const raw = await llm.send(messages);
+  let raw: string;
+  try {
+    const llm = createLLMClient();
+    raw = await llm.send(messages);
+  } catch (error) {
+    console.error('Chat LLM request failed:', error);
+    return NextResponse.json(
+      {
+        error: 'LLM_REQUEST_FAILED',
+        reply: '지금은 답변 연결이 잠시 원활하지 않네요. 잠시 후 다시 말씀해 주세요.',
+      },
+      { status: 502 },
+    );
+  }
   const { visibleText, state } = parseStateTag(raw);
+
+  if (!visibleText || INTERNAL_INSTRUCTION_PATTERN.test(visibleText)) {
+    console.error('Chat LLM returned an invalid or instruction-leaking response.');
+    return NextResponse.json(
+      {
+        error: 'INVALID_LLM_RESPONSE',
+        reply: '답변이 잠시 매끄럽지 않았네요. 불편한 상황을 한 번만 다시 말씀해 주시겠어요?',
+      },
+      { status: 502 },
+    );
+  }
 
   const topicChanged = Boolean(state.topic && state.topic !== activeSession.topic);
   let consecutiveFailCount = topicChanged ? 0 : activeSession.consecutiveFailCount;

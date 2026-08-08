@@ -9,7 +9,7 @@ const LINKS = [
 
 export function QuickLinks() {
   return (
-    <nav style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+    <nav className="landing-quick-links" aria-label="빠른 메뉴">
       {LINKS.map((link) => (
         <Link
           key={link.href}
