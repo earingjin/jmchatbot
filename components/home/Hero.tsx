@@ -3,64 +3,37 @@ import { COLORS, RADIUS, SHADOW } from '@/config/theme';
 
 export function Hero() {
   return (
-    <section style={{ padding: '12px 0 28px', textAlign: 'center' }}>
+    <section className="landing-hero">
+      <div className="hero-glow hero-glow-one" />
+      <div className="hero-glow hero-glow-two" />
       <span
         style={{
-          display: 'inline-block',
-          padding: '6px 14px',
-          borderRadius: RADIUS.pill,
-          background: COLORS.accentSoft,
-          color: COLORS.accentDark,
-          fontSize: 12,
-          fontWeight: 700,
-          marginBottom: 14,
+          display: 'inline-block', padding: '7px 15px', borderRadius: RADIUS.pill,
+          background: COLORS.accentSoft, color: COLORS.accentDark, fontSize: 12,
+          fontWeight: 800, marginBottom: 18,
         }}
       >
         24시간 AI 도움센터
       </span>
 
-      <h1 style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.35, margin: '0 0 16px', letterSpacing: -0.4 }}>
-        검사가 막막하신가요?
+      <h1 className="landing-title">
+        나를 이해하는 첫걸음,<br />버크만 검사와 함께하세요
       </h1>
+      <p className="landing-description">
+        행동과 동기, 관계 속의 나를 발견해 보세요.<br />
+        검사 진행이 어렵다면 24시간 AI 도움센터가 바로 도와드립니다.
+      </p>
 
-      <div
+      <Link
+        href="/chat"
         style={{
-          display: 'inline-block',
-          background: COLORS.card,
-          borderRadius: RADIUS.lg,
-          boxShadow: SHADOW.soft,
-          padding: '16px 20px',
-          marginBottom: 20,
-          maxWidth: 340,
+          display: 'inline-flex', alignItems: 'center', gap: 9, padding: '15px 28px',
+          borderRadius: RADIUS.pill, background: COLORS.accent, color: '#fff',
+          fontWeight: 800, fontSize: 15, textDecoration: 'none', boxShadow: SHADOW.soft,
         }}
       >
-        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: COLORS.text }}>
-          링크가 안 열리거나 화면이 멈췄나요?
-          <br />
-          AI가 지금 바로 도와드릴게요.
-        </p>
-      </div>
-
-      <div>
-        <Link
-          href="/chat"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '14px 26px',
-            borderRadius: RADIUS.pill,
-            background: COLORS.accent,
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 15,
-            textDecoration: 'none',
-            boxShadow: SHADOW.soft,
-          }}
-        >
-          AI에게 바로 물어보기 →
-        </Link>
-      </div>
+        AI 상담 시작하기 <span aria-hidden="true">→</span>
+      </Link>
     </section>
   );
 }

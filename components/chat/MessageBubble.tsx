@@ -27,3 +27,19 @@ export function MessageBubble({ message }: { message: ChatMessageView }) {
     </div>
   );
 }
+
+export function TypingBubble() {
+  return (
+    <div
+      role="status"
+      aria-label="AI가 답변을 작성하고 있습니다"
+      style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 8 }}
+    >
+      <div className="typing-bubble" aria-hidden="true">
+        <span className="typing-dot" />
+        <span className="typing-dot" />
+        <span className="typing-dot" />
+      </div>
+    </div>
+  );
+}
