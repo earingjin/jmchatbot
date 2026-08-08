@@ -6,8 +6,8 @@ export default function HomePage() {
   return (
     <main className="landing-page">
       <Hero />
-      <BirkmanIntro />
       <QuickLinks />
+      <BirkmanIntro />
     </main>
   );
 }

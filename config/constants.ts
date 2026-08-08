@@ -2,7 +2,7 @@ export const SERVICE_NAME = '버크만 검사 24시 AI 도움센터';
 
 export const SUPPORT_PHONE = '02-000-0000';
 export const SUPPORT_HOURS_TEXT = '평일 09:00~18:00';
-export const ESCALATION_MESSAGE = `${SUPPORT_HOURS_TEXT}에 상담사와 전화 연결이 가능합니다. 📞 ${SUPPORT_PHONE}`;
+export const ESCALATION_MESSAGE = `${SUPPORT_HOURS_TEXT}에 전화 연결이 가능합니다. 📞 ${SUPPORT_PHONE}`;
 
 export const CATEGORIES = [
   { key: 'guide', label: '검사 방법을 모르겠어요' },

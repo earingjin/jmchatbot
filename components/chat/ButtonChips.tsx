@@ -1,5 +1,3 @@
-import { COLORS, RADIUS } from '@/config/theme';
-
 export function ButtonChips({
   options,
   disabled,
@@ -12,22 +10,13 @@ export function ButtonChips({
   if (options.length === 0) return null;
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16, marginLeft: 4 }}>
+    <div className="quick-replies">
       {options.map((label) => (
         <button
           key={label}
           disabled={disabled}
           onClick={() => onSelect(label)}
-          style={{
-            padding: '8px 14px',
-            borderRadius: RADIUS.pill,
-            border: `1px solid ${COLORS.accent}`,
-            background: COLORS.card,
-            color: COLORS.accentDark,
-            fontSize: 13,
-            fontWeight: 700,
-            opacity: disabled ? 0.5 : 1,
-          }}
+          className="quick-reply"
         >
           {label}
         </button>

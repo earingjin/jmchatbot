@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { CategoryBarChart } from '@/components/dashboard/CategoryBarChart';
 import { StatCard } from '@/components/dashboard/StatCard';
-import { TopicRankList } from '@/components/dashboard/TopicRankList';
 import type { DashboardStats } from '@/lib/store';
 
 type Range = 'today' | 'week' | 'month';
@@ -27,7 +27,10 @@ export default function AdminDashboardPage() {
 
   return (
     <main>
-      <h1 style={{ fontSize: 20, marginBottom: 16 }}>관리자 대시보드</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
+        <h1 style={{ fontSize: 20, margin: 0 }}>관리자 대시보드</h1>
+        <Link href="/admin/documents" style={{ color: '#e4531f', fontSize: 13, fontWeight: 800 }}>AI 참고자료 관리 →</Link>
+      </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {(['today', 'week', 'month'] as const).map((r) => (
@@ -54,7 +57,6 @@ export default function AdminDashboardPage() {
       </div>
 
       <CategoryBarChart counts={stats.categoryCounts} />
-      <TopicRankList topics={stats.topTopics} />
     </main>
   );
 }

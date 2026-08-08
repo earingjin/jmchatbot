@@ -5,7 +5,7 @@ import { ButtonChips } from '@/components/chat/ButtonChips';
 import { MessageBubble, TypingBubble, type ChatMessageView } from '@/components/chat/MessageBubble';
 import { RatingPrompt } from '@/components/chat/RatingPrompt';
 import { stripButtons } from '@/lib/stateTag';
-import { COLORS, RADIUS } from '@/config/theme';
+import type { AnswerSource } from '@/lib/knowledge/types';
 
 const INITIAL_BUTTONS = ['검사 방법', '검사 링크/로그인', '검사 진행 오류', '결과 확인'];
 
@@ -37,7 +37,7 @@ export function ChatWindow() {
         body: JSON.stringify({ sessionId, message: trimmed }),
       });
       const responseText = await res.text();
-      let data: { reply?: string; sessionId?: string; buttons?: string[]; escalated?: boolean; session?: { resolved?: boolean } } = {};
+      let data: { reply?: string; sessionId?: string; buttons?: string[]; sources?: AnswerSource[]; escalated?: boolean; session?: { resolved?: boolean } } = {};
 
       if (responseText) {
         try {
@@ -71,7 +71,7 @@ export function ChatWindow() {
       setSessionId(nextSessionId);
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', text: stripButtons(reply), buttons: data.buttons },
+        { role: 'assistant', text: stripButtons(reply), buttons: data.buttons, sources: data.sources },
       ]);
 
       if (data.escalated || data.session?.resolved === true) {
@@ -83,11 +83,11 @@ export function ChatWindow() {
   }
 
   return (
-    <div>
-      <div>
+    <div className="chat-room">
+      <div className="chat-messages" aria-live="polite">
         {messages.map((message, i) => (
-          <div key={i}>
-            <MessageBubble message={message} />
+          <div className="chat-turn" key={i}>
+            <MessageBubble message={message} welcome={i === 0} />
             {message.role === 'assistant' && (
               <ButtonChips
                 options={message.buttons ?? []}
@@ -107,34 +107,19 @@ export function ChatWindow() {
           e.preventDefault();
           sendMessage(input);
         }}
-        style={{ display: 'flex', gap: 8, marginTop: 8 }}
+        className="chat-composer"
       >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
           placeholder="궁금한 내용을 입력해주세요"
-          style={{
-            flex: 1,
-            padding: '12px 14px',
-            borderRadius: RADIUS.md,
-            border: `1px solid ${COLORS.border}`,
-            background: COLORS.card,
-            fontSize: 14,
-          }}
+          className="chat-input"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          style={{
-            padding: '12px 18px',
-            borderRadius: RADIUS.md,
-            border: 'none',
-            background: COLORS.accent,
-            color: '#fff',
-            fontWeight: 700,
-            opacity: loading || !input.trim() ? 0.5 : 1,
-          }}
+          className="chat-send"
         >
           전송
         </button>

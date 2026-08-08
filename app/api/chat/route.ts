@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { ESCALATION_MESSAGE } from '@/config/constants';
 import { createLLMClient, type LLMMessage } from '@/lib/llm/client';
+import { retrieveKnowledge } from '@/lib/knowledge/knowledgeSearch';
 import { maskPII } from '@/lib/pii';
 import { extractButtons, parseStateTag } from '@/lib/stateTag';
 import { store } from '@/lib/store';
-import { SYSTEM_PROMPT } from '@/lib/systemPrompt';
+import { buildSystemPrompt } from '@/lib/systemPrompt';
 
 const MAX_MESSAGE_LENGTH = 300;
 const INTERNAL_INSTRUCTION_PATTERN =
@@ -47,8 +48,9 @@ export async function POST(request: Request) {
   }
 
   const history = await store.getMessages(activeSession.id, 20);
+  const knowledge = retrieveKnowledge(userMessage);
   const messages: LLMMessage[] = [
-    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: buildSystemPrompt(knowledge.items) },
     ...history.map((m) => ({ role: m.role, content: m.content }) as LLMMessage),
   ];
 
@@ -102,6 +104,7 @@ export async function POST(request: Request) {
     sessionId: activeSession.id,
     reply: visibleText,
     buttons: extractButtons(visibleText),
+    sources: knowledge.sources,
     escalated: false,
     session: updated,
   });
