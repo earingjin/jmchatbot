@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 const COMPONENTS = [
   ['01', 'USUAL BEHAVIOR', '평소 행동', '평상시 타인에게 보이는 사회적 스타일과 강점'],
   ['02', 'NEEDS', '내면의 욕구', '행동의 동기가 되며 만족되어야 하는 심리적 요구'],
@@ -20,17 +22,14 @@ export function BirkmanIntro() {
         </p>
       </div>
 
-      <div className="concept-diagram" aria-label="사람과 환경이 행동에 영향을 주는 관계">
-        <div className="concept-top-row">
-          <ConceptCard tone="coral" icon="person" label="PERSON" title="개인의 기질과 특성" />
-          <span className="concept-plus" aria-hidden="true">+</span>
-          <ConceptCard tone="mint" icon="environment" label="ENVIRONMENT" title="관계와 주변 환경" />
-        </div>
-        <div className="concept-arrow" aria-hidden="true">↓</div>
-        <div className="concept-bottom-row">
-          <ConceptCard tone="mint" icon="observable" label="OBSERVABLE" title="겉으로 관찰되는 행동" description="긍정행동 · 스트레스행동" />
-          <ConceptCard tone="coral" icon="motivation" label="INNER MOTIVATION" title="겉으로 관찰할 수 없는 영역" description="동기와 욕구 · 행동의 원인 · 흥미와 적성" />
-        </div>
+      <div className="concept-diagram concept-image-frame">
+        <Image
+          className="concept-image"
+          src="/images/birkman-basics-report.png"
+          alt="Birkman Basics Report 표지"
+          fill
+          sizes="(max-width: 760px) calc(100vw - 32px), 55vw"
+        />
       </div>
 
       <div className="birkman-detail-groups">
