@@ -1,3 +1,5 @@
+import { COLORS, RADIUS } from '@/config/theme';
+
 export function ButtonChips({
   options,
   disabled,
@@ -18,12 +20,12 @@ export function ButtonChips({
           onClick={() => onSelect(label)}
           style={{
             padding: '8px 14px',
-            borderRadius: 20,
-            border: '1px solid #2563eb',
-            background: '#fff',
-            color: '#2563eb',
+            borderRadius: RADIUS.pill,
+            border: `1px solid ${COLORS.accent}`,
+            background: COLORS.card,
+            color: COLORS.accentDark,
             fontSize: 13,
-            fontWeight: 600,
+            fontWeight: 700,
             opacity: disabled ? 0.5 : 1,
           }}
         >

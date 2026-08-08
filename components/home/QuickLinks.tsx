@@ -1,31 +1,49 @@
 import Link from 'next/link';
+import { COLORS, RADIUS, SHADOW } from '@/config/theme';
 
 const LINKS = [
-  { href: '/chat', label: 'AI에게 질문하기', primary: true },
-  { href: '/guide', label: '검사방법 안내', primary: false },
-  { href: '/faq', label: '자주 발생하는 문제', primary: false },
+  { href: '/chat', icon: '💬', label: 'AI에게 질문하기' },
+  { href: '/guide', icon: '📋', label: '검사방법 안내' },
+  { href: '/faq', icon: '❓', label: '자주 발생하는 문제' },
 ];
 
 export function QuickLinks() {
   return (
-    <nav style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <nav style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
       {LINKS.map((link) => (
         <Link
           key={link.href}
           href={link.href}
           style={{
-            display: 'block',
-            textAlign: 'center',
-            padding: '16px',
-            borderRadius: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 8,
+            padding: '18px 8px',
+            borderRadius: RADIUS.lg,
             textDecoration: 'none',
-            fontWeight: 600,
-            background: link.primary ? '#2563eb' : '#fff',
-            color: link.primary ? '#fff' : '#1a1a1a',
-            border: link.primary ? 'none' : '1px solid #ddd',
+            color: COLORS.text,
+            background: COLORS.card,
+            boxShadow: SHADOW.soft,
           }}
         >
-          {link.label}
+          <span
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: COLORS.accentSoft,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18,
+            }}
+          >
+            {link.icon}
+          </span>
+          <span style={{ fontSize: 13, fontWeight: 700, textAlign: 'center', lineHeight: 1.3 }}>
+            {link.label}
+          </span>
         </Link>
       ))}
     </nav>
