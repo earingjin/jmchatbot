@@ -27,7 +27,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: 'forbidden' }, { status: 403 });
     }
 
-    // 국방교육담당자 조회는 감사 로그에 남긴다 — 계정이 부서 공용이라
+    // 국방전직교육원 담당자 조회는 감사 로그에 남긴다 — 계정이 부서 공용이라
     // "누가"는 특정할 수 없고 "언제 무엇을 조회했는지"만 추적한다 (INTEGRATION_BRIEF.md 3-7).
     if (session.role === 'defense_education') {
       const { error: logError } = await supabaseServer

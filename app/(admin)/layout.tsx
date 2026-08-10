@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth';
 import { signOutAction } from '@/lib/actions';
 
 export const metadata = {
-  title: 'JM 상담기록 시스템',
+  title: '관리자 페이지 | JM 상담기록 시스템',
 };
 
 /**

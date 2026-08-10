@@ -24,8 +24,8 @@ export interface RecordScope {
 }
 
 /**
- * 상담사는 본인 소유 레코드만, 관리자와 국방교육담당자는 전체를 반환한다.
- * 국방교육담당자는 상담사와 동일한 상세를 열람할 수 있지만 쓰기 권한은 없다
+ * 상담사는 본인 소유 레코드만, 관리자와 국방전직교육원 담당자는 전체를 반환한다.
+ * 국방전직교육원 담당자는 상담사와 동일한 상세를 열람할 수 있지만 쓰기 권한은 없다
  * (app/api/records/route.ts의 POST에서 차단).
  */
 export async function getAllRecords(scope: RecordScope): Promise<CounselingRecord[]> {

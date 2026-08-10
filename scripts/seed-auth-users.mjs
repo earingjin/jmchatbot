@@ -19,7 +19,7 @@ function toLoginEmail(id) {
 
 const accounts = [
   { id: 'counselor_kim', password: 'demo1234', role: 'counselor', displayName: '김상담' },
-  { id: 'admin_jm', password: 'admin1234', role: 'admin', displayName: '교육담당자' },
+  { id: 'admin_jm', password: 'admin1234', role: 'admin', displayName: '관리자' },
   {
     id: 'defense_dept',
     // 부서 공용 계정 — 초기 비밀번호는 DEFENSE_DEPT_PASSWORD 환경변수로 주입한다.
@@ -27,7 +27,7 @@ const accounts = [
     // (INTEGRATION_BRIEF.md 7번 참조).
     password: process.env.DEFENSE_DEPT_PASSWORD,
     role: 'defense_education',
-    displayName: '국방교육담당자',
+    displayName: '국방전직교육원 담당자',
     // counselor_id는 role이 counselor가 아닐 때는 쓰이지 않는 placeholder.
     counselorId: 'defense_dept',
   },

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   if (!session) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
-  // 국방교육담당자는 읽기 전용 — 기록 생성 권한이 없다 (INTEGRATION_BRIEF.md 3-6).
+  // 국방전직교육원 담당자는 읽기 전용 — 기록 생성 권한이 없다 (INTEGRATION_BRIEF.md 3-6).
   if (session.role === 'defense_education') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }

@@ -7,20 +7,43 @@ import { Seal } from './layout/Seal';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { toLoginEmail } from '@/lib/supabase/loginEmail';
 
-export function LoginScreen({ role }: { role: 'counselor' | 'admin' }) {
+type ScreenRole = 'counselor' | 'admin' | 'defense';
+
+const ROLE_CONFIG: Record<
+  ScreenRole,
+  { title: string; sub: string; destination: string; expectedRole: string; mismatchMessage: string }
+> = {
+  counselor: {
+    title: '상담사 로그인',
+    sub: '내가 등록한 상담일지 목록을 조회하고 새 상담을 기록합니다.',
+    destination: '/records',
+    expectedRole: 'counselor',
+    mismatchMessage: '이 계정은 상담사 계정이 아닙니다.',
+  },
+  admin: {
+    title: '관리자 로그인',
+    sub: '전체 상담·챗봇 이용 현황을 확인하고 상담사 계정을 관리합니다.',
+    destination: '/admin/dashboard',
+    expectedRole: 'admin',
+    mismatchMessage: '이 계정은 관리자 계정이 아닙니다.',
+  },
+  defense: {
+    title: '국방전직교육원 담당자 로그인',
+    sub: '개별 상담 기록을 열람합니다 (읽기 전용).',
+    destination: '/records',
+    expectedRole: 'defense_education',
+    mismatchMessage: '이 계정은 국방전직교육원 담당자 계정이 아닙니다.',
+  },
+};
+
+export function LoginScreen({ role }: { role: ScreenRole }) {
   const router = useRouter();
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const title = role === 'counselor' ? '상담사 로그인' : '교육담당자 로그인';
-  const sub =
-    role === 'counselor'
-      ? '등록된 아이디와 비밀번호로 접속합니다.'
-      : '관리자 권한으로 전체 상담 현황을 조회합니다.';
-  const destination = role === 'counselor' ? '/records' : '/admin/dashboard';
-  const otherRole = role === 'counselor' ? '/login/admin' : '/login/counselor';
+  const config = ROLE_CONFIG[role];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,21 +62,13 @@ export function LoginScreen({ role }: { role: 'counselor' | 'admin' }) {
         return;
       }
 
-      // defense_education 계정은 /login/admin으로 로그인하되 /admin/*이 아니라
-      // /records로만 보낸다 (열람 전용, 대시보드는 admin만).
-      const userRole = data.user.app_metadata?.role;
-      if (role === 'counselor' && userRole !== 'counselor') {
+      if (data.user.app_metadata?.role !== config.expectedRole) {
         await supabase.auth.signOut();
-        setError('이 계정은 상담사 계정이 아닙니다.');
-        return;
-      }
-      if (role === 'admin' && userRole !== 'admin' && userRole !== 'defense_education') {
-        await supabase.auth.signOut();
-        setError('이 계정은 관리자 계정이 아닙니다.');
+        setError(config.mismatchMessage);
         return;
       }
 
-      router.push(userRole === 'defense_education' ? '/records' : destination);
+      router.push(config.destination);
       router.refresh();
     } catch (loginError) {
       console.error('Login failed:', loginError);
@@ -70,8 +85,8 @@ export function LoginScreen({ role }: { role: 'counselor' | 'admin' }) {
         <div className="auth-seal">
           <Seal color="#9C7A3E" />
         </div>
-        <h2>{title}</h2>
-        <p className="auth-sub">{sub}</p>
+        <h2>{config.title}</h2>
+        <p className="auth-sub">{config.sub}</p>
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label>아이디</label>
@@ -88,9 +103,7 @@ export function LoginScreen({ role }: { role: 'counselor' | 'admin' }) {
         </form>
         <div className="auth-foot">
           <a href="#" onClick={(e) => e.preventDefault()}>비밀번호를 잊으셨나요?</a>
-          <Link href={otherRole}>
-            {role === 'counselor' ? '관리자이신가요?' : '상담사이신가요?'}
-          </Link>
+          <Link href="/login">다른 유형으로 로그인</Link>
         </div>
       </div>
     </div>

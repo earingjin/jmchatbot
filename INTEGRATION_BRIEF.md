@@ -11,8 +11,8 @@
 `motichatbot` 저장소 위에서 완성되며, `jmcounseling`은 인증/역할/기록
 관리 패턴의 소스로 참조·이식한다.
 
-역할: `counselor`(상담사) · `admin`(관리자=교육담당자) · `defense_education`
-(국방교육담당자, 신규) · 익명 사용자(챗봇 이용자, 로그인 없음)
+역할: `counselor`(상담사) · `admin`(관리자) · `defense_education`
+(국방전직교육원 담당자, 신규) · 익명 사용자(챗봇 이용자, 로그인 없음)
 
 ## 1. 현재 상태 (실측)
 
@@ -138,7 +138,7 @@ CREATE TABLE handoff_links (
   created_at timestamptz DEFAULT now()
 );
 
--- 국방교육담당자 조회 이력 (감사 로그)
+-- 국방전직교육원 담당자 조회 이력 (감사 로그)
 CREATE TABLE access_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid,
@@ -164,7 +164,7 @@ RLS는 jmcounseling과 동일하게 **전면 차단 + service_role 전용 접근
 - `scripts/seed-auth-users.mjs` 이식 + 계정 추가:
   ```js
   { id: 'defense_dept', password: '<발급 예정>', role: 'defense_education',
-    displayName: '국방교육담당자' }
+    displayName: '국방전직교육원 담당자' }
   ```
   (부서 공용 계정 — 요청사항 확정대로. `counselor_id`는 role이
   counselor가 아니므로 임의 placeholder 값 필요 — `getAllRecords`
@@ -228,11 +228,11 @@ admin과 같이 전체 열람 허용 (현재 코드는 `role === 'counselor'`일
 
 | 항목 | 결정 |
 |---|---|
-| 국방교육담당자 열람 범위 | 개별 상담 기록 전체 (상담사와 동일한 상세) |
-| 국방교육담당자 계정 방식 | 부서 공용 계정 1개 (Supabase Auth, `ADMIN_PASSWORD` 방식 아님) |
-| 국방교육담당자 쓰기 권한 | 없음 (읽기 전용) |
+| 국방전직교육원 담당자 열람 범위 | 개별 상담 기록 전체 (상담사와 동일한 상세) |
+| 국방전직교육원 담당자 계정 방식 | 부서 공용 계정 1개 (Supabase Auth, `ADMIN_PASSWORD` 방식 아님) |
+| 국방전직교육원 담당자 쓰기 권한 | 없음 (읽기 전용) |
 | 상담사 열람 범위 | 자신이 담당한 케이스만 (`counselor_id` 필터 유지) |
-| 국방교육담당자 감사 로그 | `access_logs`로 조회 이력만 기록 (계정이 공용이라 "누가"는 특정 불가, "언제 무엇을"만 추적) |
+| 국방전직교육원 담당자 감사 로그 | `access_logs`로 조회 이력만 기록 (계정이 공용이라 "누가"는 특정 불가, "언제 무엇을"만 추적) |
 
 ## 5. 브랜치/PR 안내
 

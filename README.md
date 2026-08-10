@@ -21,6 +21,17 @@ npm run dev   # http://localhost:3000
 
 `.env.local`을 채우지 않아도 `LLM_PROVIDER=mock`(기본값)으로 동작합니다 — 실제 LLM 키 없이 데모 가능.
 
+## 역할과 페이지
+
+이 앱은 익명 사용자용 챗봇 사이트와 상담사/관리자/국방전직교육원 담당자용 포털을 하나의 Next.js 앱으로 통합해 제공한다. 자세한 통합 배경은 `INTEGRATION_BRIEF.md` 참고.
+
+| 역할 | 진입 경로 | 주요 페이지 | 비고 |
+|---|---|---|---|
+| 사용자 페이지 | `/` | `/`, `/chat`, `/faq`, `/guide` | 로그인 불필요, 완전 익명 |
+| 상담사 페이지 | `/login/counselor` | `/records`, `/records/[id]`, `/records/new` | 본인이 담당한 상담 기록만 열람/작성 |
+| 관리자 페이지 | `/login/admin` | `/admin/dashboard`, `/admin/accounts`, `/admin/documents` | 상담·챗봇 통계 전체, 계정/자료 관리 |
+| 국방전직교육원 담당자 페이지 | `/login/defense` | `/records`, `/records/[id]` | 전체 상담 기록 읽기 전용, 조회 시 `access_logs`에 감사 로그 기록 |
+
 ## 아키텍처
 
 - `lib/systemPrompt.ts` — 챗봇의 전체 행동 규칙(분류 → 진단 → 해결 → 종료, 금지사항, 숨김 STATE 태그 출력 형식).
@@ -29,7 +40,7 @@ npm run dev   # http://localhost:3000
 - `app/api/chat/route.ts` — 매 요청마다: PII 마스킹 → (같은 topic에서 2회 연속 실패면 LLM 호출 없이 강제로 전화 안내 종료) → LLM 호출 → STATE 파싱 → `chat_sessions`/`chat_messages` 갱신.
 - `lib/store.ts` — 저장 계층 인터페이스. 현재는 `.data/store.json` 파일에 저장하는 `FileStore`입니다. (처음엔 순수 메모리 `Map`으로 만들었으나, Next.js가 `app/api/**/route.ts`를 각각 별도 번들로 컴파일하면서 라우트 파일마다 모듈 인스턴스가 분리돼 `/api/chat`에서 만든 세션을 `/api/chat/rate`·`/api/admin/stats`가 못 찾는 문제가 실제로 발생했음 — 파일로 옮겨 해결했다.) **여러 서버리스 인스턴스로 배포하면 인스턴스마다 별도 파일시스템을 가지므로 통계가 어긋납니다** — 실제 운영에서는 같은 인터페이스를 구현하는 Postgres/Supabase 기반 Store로 교체해야 합니다. 스키마는 아래 참고.
 - `lib/pii.ts` — 전화번호/이메일/주민번호 패턴을 저장·LLM 전송 전에 마스킹. 정규식 기반이라 모든 변형을 잡아내지 못할 수 있으니, 운영 전 실데이터로 재검증 권장.
-- `lib/adminAuth.ts` — 단일 비밀번호(`ADMIN_PASSWORD`) 기반 MVP 인증. 관리자가 여럿이거나 민감도가 높아지면 실제 인증(예: jmcounseling과 동일한 Supabase Auth 패턴)으로 교체 필요.
+- `lib/auth.ts` — Supabase Auth 기반 인증. `getSession()`이 로그인한 사용자의 `app_metadata.{role, counselor_id, display_name}`을 읽어 역할(`counselor`/`admin`/`defense_education`)을 판별한다. role은 service_role 키로만 기록 가능해 클라이언트가 위조할 수 없다. jmcounseling과 동일한 Supabase 프로젝트·Auth 사용자 풀을 공유한다 (`INTEGRATION_BRIEF.md` 참고).
 
 ## DB 스키마 (실제 DB로 교체 시)
 

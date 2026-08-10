@@ -3,9 +3,14 @@ import { TopBar } from '@/components/layout/TopBar';
 import { getSession } from '@/lib/auth';
 import { signOutAction } from '@/lib/actions';
 
-export const metadata = {
-  title: 'JM 상담기록 시스템',
-};
+/**
+ * defense_education도 /records를 보므로, 탭 제목을 실제 로그인한 역할에 맞춰 동적으로 만든다.
+ */
+export async function generateMetadata() {
+  const session = await getSession();
+  const roleLabel = session?.role === 'defense_education' ? '국방전직교육원 담당자' : '상담사';
+  return { title: `${roleLabel} 페이지 | JM 상담기록 시스템` };
+}
 
 /**
  * 상담사 전용 레이아웃.
@@ -19,7 +24,7 @@ export default async function CounselorLayout({ children }: { children: React.Re
     redirect('/login/counselor');
   }
 
-  const roleLabel = session.role === 'defense_education' ? '국방교육담당자' : '상담사';
+  const roleLabel = session.role === 'defense_education' ? '국방전직교육원 담당자' : '상담사';
 
   return (
     <div id="app">

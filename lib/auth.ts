@@ -43,7 +43,7 @@ export async function createSupabaseServerClient() {
  * 로그인된 사용자의 역할/상담사 식별 정보를 반환한다. role/counselor_id/display_name은
  * 사용자가 스스로 바꿀 수 없는 app_metadata에만 저장되어 있다 (service_role만 기록 가능).
  *
- * defense_education(국방교육담당자)은 부서 공용 계정이라 counselor_id가 실제 상담사를
+ * defense_education(국방전직교육원 담당자)은 부서 공용 계정이라 counselor_id가 실제 상담사를
  * 가리키지 않는다 — placeholder 값이며 getAllRecords에서 이 role일 때는 무시된다.
  */
 export async function getSession(): Promise<SessionInfo | null> {

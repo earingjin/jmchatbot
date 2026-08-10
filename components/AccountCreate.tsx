@@ -4,8 +4,8 @@ const ACCOUNTS = [
   { name: '김상담', id: 'counselor_kim', center: '서울센터', perm: '상담사', permClass: 'perm-counselor' },
   { name: '이지원', id: 'counselor_lee', center: '대전센터', perm: '상담사', permClass: 'perm-counselor' },
   { name: '박훈련', id: 'counselor_park', center: '부산센터', perm: '상담사', permClass: 'perm-counselor' },
-  { name: '교육담당자', id: 'admin_jm', center: '본사', perm: '관리자', permClass: 'perm-admin' },
-  { name: '국방교육담당자', id: 'defense_dept', center: '국방부', perm: '국방교육담당자(읽기전용)', permClass: 'perm-counselor' },
+  { name: '관리자', id: 'admin_jm', center: '본사', perm: '관리자', permClass: 'perm-admin' },
+  { name: '국방전직교육원 담당자', id: 'defense_dept', center: '국방부', perm: '국방전직교육원 담당자(읽기전용)', permClass: 'perm-counselor' },
 ];
 
 export function AccountCreate() {
@@ -38,7 +38,7 @@ export function AccountCreate() {
             <label>권한</label>
             <select>
               <option>상담사</option>
-              <option>교육담당자(관리자)</option>
+              <option>관리자</option>
             </select>
           </div>
           <div className="field">

@@ -59,6 +59,13 @@ details summary::-webkit-details-marker { color: var(--color-accent); }
 .birkman-intro-copy h3 { margin: 0 0 18px; color: var(--color-text); font-size: 18px; font-weight: 600; }
 .birkman-intro-copy h3 span { color: var(--color-text-muted); font-size: 13px; font-weight: 400; }
 .birkman-intro-copy p { margin: 0 0 12px; color: var(--color-text-muted); font-size: 15px; font-weight: 400; line-height: 1.85; word-break: keep-all; }
+
+/* Review board (Padlet embed) — birkman-intro 그리드 안, 진단소개와 구성요소 사이의 한 행.
+   birkman-intro-copy와 같은 타이포그래피 톤을 재사용하고, grid-column으로 전체 너비를 차지한다. */
+.review-board { grid-column: 1 / -1; }
+.review-board-copy { max-width: 640px; margin: 0 0 44px; }
+.review-board-copy h2 { margin: 10px 0 12px; font-size: 32px; font-weight: 700; letter-spacing: -0.03em; }
+.review-board-copy p { margin: 0; color: var(--color-text-muted); font-size: 15px; font-weight: 400; line-height: 1.85; word-break: keep-all; }
 .concept-diagram { padding: 18px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: rgba(255, 255, 255, 0.72); box-shadow: 0 18px 42px -34px rgba(26, 104, 95, 0.38); }
 .concept-image-frame { position: relative; aspect-ratio: 2 / 1; overflow: hidden; padding: 0; }
 .concept-image { object-fit: cover; }
@@ -239,6 +246,7 @@ details summary::-webkit-details-marker { color: var(--color-accent); }
   .birkman-intro { grid-template-columns: 1fr; gap: 46px; padding: var(--space-section) 0; }
   .birkman-intro-copy h2 { margin-bottom: 34px; font-size: 28px; }
   .concept-diagram { padding: 18px; }
+  .review-board-copy h2 { font-size: 28px; }
   .concept-card { min-height: 116px; gap: 12px; padding: 16px 14px; }
   .concept-icon { flex-basis: 48px; width: 48px; height: 48px; }
   .concept-icon svg { width: 34px; height: 34px; }
@@ -371,6 +379,72 @@ input,select,textarea{font-family:inherit; font-size:14px;}
 .btn-outline{background:transparent; border:1px solid var(--line-strong); color:var(--ink);}
 .btn-outline:hover{border-color:var(--ink); background:var(--panel-raised);}
 .btn-block{width:100%;}
+
+/* ===== Role select landing (jmcounseling Landing.tsx 참고) ===== */
+.landing{
+  min-height:100vh; display:grid; grid-template-columns:1fr 1fr;
+}
+.landing-visual{
+  background:var(--navy-deep); color:#EDEFEA;
+  padding:64px 56px; position:relative; overflow:hidden;
+  display:flex; flex-direction:column; justify-content:space-between;
+}
+.landing-visual::after{
+  content:""; position:absolute; right:-120px; bottom:-120px; width:420px; height:420px;
+  border:1px solid rgba(156,122,62,0.25); border-radius:50%;
+}
+.landing-visual::before{
+  content:""; position:absolute; right:-40px; bottom:-40px; width:420px; height:420px;
+  border:1px solid rgba(156,122,62,0.15); border-radius:50%;
+}
+.lv-top .brand-text{font-size:18px;}
+.lv-eyebrow{
+  font-size:11.5px; letter-spacing:0.16em; color:#A9B3A6; text-transform:uppercase;
+  margin-bottom:14px;
+}
+.lv-title{
+  font-family:inherit; font-size:38px; line-height:1.35; font-weight:600;
+  margin:0 0 20px; max-width:460px;
+}
+.lv-desc{color:#B7BFB2; font-size:14.5px; max-width:400px; line-height:1.8;}
+.lv-footer{
+  display:flex; gap:28px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.12);
+  font-size:12px; color:#8C968A; position:relative; z-index:1; flex-wrap:wrap;
+}
+.lv-footer b{color:#D6C495; font-family:inherit; font-weight:600;}
+
+.landing-actions{
+  background:var(--paper); padding:64px 56px; display:flex; flex-direction:column; justify-content:center;
+}
+.la-inner{max-width:420px; margin:0 auto; width:100%;}
+.la-head{margin-bottom:36px;}
+.la-head h2{font-size:22px; margin:0 0 8px; font-weight:600;}
+.la-head p{color:var(--ink-soft); font-size:13.5px; margin:0;}
+.role-card{
+  display:flex; align-items:center; gap:16px;
+  padding:22px; border:1px solid var(--line); border-radius:2px; background:var(--panel-raised);
+  margin-bottom:14px; cursor:pointer; transition:border-color .15s, box-shadow .15s;
+  text-decoration:none; color:inherit;
+}
+.role-card:hover{border-color:var(--brass); box-shadow:var(--shadow);}
+.role-icon{
+  width:40px; height:40px; border-radius:2px; background:var(--brass-soft); color:var(--brass);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:18px;
+}
+.role-icon.alt{background:var(--sage-soft); color:var(--sage);}
+.role-icon.alt2{background:var(--brick-soft); color:var(--brick);}
+.role-card-body h3{margin:0; font-size:15px; font-weight:600;}
+.role-card-body p{margin:4px 0 0; font-size:12.5px; color:var(--ink-soft); line-height:1.6;}
+.role-card-arrow{margin-left:auto; align-self:center; color:var(--ink-faint); font-size:16px;}
+.la-note{
+  margin-top:24px; font-size:11.5px; color:var(--ink-faint); line-height:1.7;
+  border-left:2px solid var(--line-strong); padding-left:12px;
+}
+
+@media (max-width: 880px){
+  .landing{grid-template-columns:1fr;}
+  .landing-visual{padding:40px 28px;}
+}
 
 /* ===== Login screens ===== */
 .auth-wrap{

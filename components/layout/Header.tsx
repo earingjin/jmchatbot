@@ -12,8 +12,7 @@ export function Header() {
           <Link href="/guide">검사방법 안내</Link>
           <Link href="/faq">자주 발생하는 문제</Link>
         </nav>
-        <Link href="/login/counselor" className="admin-header-link" aria-label="상담사 로그인">상담사</Link>
-        <Link href="/admin" className="admin-header-link" aria-label="관리자 페이지">관리자</Link>
+        <Link href="/login" className="admin-header-link" aria-label="관리자 페이지">관리자</Link>
       </div>
     </header>
   );
