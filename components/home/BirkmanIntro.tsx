@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ReviewBoard } from './ReviewBoard';
 
 const COMPONENTS = [
   ['01', 'USUAL BEHAVIOR', '평소 행동', '평상시 타인에게 보이는 사회적 스타일과 강점'],
@@ -23,14 +23,16 @@ export function BirkmanIntro() {
       </div>
 
       <div className="concept-diagram concept-image-frame">
-        <Image
+        <iframe
           className="concept-image"
-          src="/images/birkman-basics-report.png"
-          alt="Birkman Basics Report 표지"
-          fill
-          sizes="(max-width: 760px) calc(100vw - 32px), 55vw"
+          src="https://www.youtube.com/embed/u2t1pjDKZ18?autoplay=1&mute=1&loop=1&playlist=u2t1pjDKZ18&controls=1"
+          title="버크만 진단 소개 영상"
+          style={{ width: '100%', height: '100%', border: 0 }}
+          allow="autoplay; encrypted-media"
         />
       </div>
+
+      <ReviewBoard />
 
       <div className="birkman-detail-groups">
         <section className="birkman-detail-section" aria-labelledby="components-title">
