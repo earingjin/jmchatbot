@@ -30,6 +30,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         links={[
           { label: '상담사 계정 관리', href: '/admin/accounts' },
           { label: 'AI 참고자료 관리', href: '/admin/documents' },
+          { label: '공지사항 관리', href: '/admin/notices' },
         ]}
         logoutAction={signOutAction}
       />
