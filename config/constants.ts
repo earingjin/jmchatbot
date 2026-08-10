@@ -38,3 +38,11 @@ export const TOPICS = [
 ] as const;
 
 export type TopicKey = (typeof TOPICS)[number];
+
+// ===== jmcounseling에서 이식 (상담일지 작성 화면용) =====
+
+export const CONTENT_MAX_LENGTH = 200; // 주요 진행내용 표시 기준
+export const CONTENT_HARD_LIMIT = 260; // DB 컬럼 여유분 / 서버 검증 상한
+
+export const BRANCH_OPTIONS = ['육군', '해군', '공군', '기타'] as const;
+export const COUNSELING_METHODS = ['대면', '전화', '화상', '서면'] as const;

@@ -1,6 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import path from 'path';
 import type { CategoryKey, TopicKey } from '@/config/constants';
+import { supabaseServer } from '@/lib/supabase/server';
 
 export interface ChatSession {
   id: string;
@@ -41,11 +40,8 @@ export interface DashboardStats {
 
 /**
  * Storage abstraction so the rest of the app never talks to a concrete
- * database directly. MVP ships with a file-backed JSON implementation
- * (below) — swap it for a real Postgres/Supabase-backed Store when this
- * app gets a production database and needs to run on multiple instances,
- * using the same `chat_sessions`/`chat_messages` column names documented
- * in the README.
+ * database directly. Backed by Supabase (chat_sessions/chat_messages,
+ * see supabase/schema.sql) — see INTEGRATION_BRIEF.md 3-3.
  */
 export interface Store {
   createSession(): Promise<ChatSession>;
@@ -56,101 +52,136 @@ export interface Store {
   getStats(range: StatsRange): Promise<DashboardStats>;
 }
 
-interface RawData {
-  sessions: Record<string, ChatSession>;
-  messages: Record<string, ChatMessage[]>;
-  idCounter: number;
+interface ChatSessionRow {
+  id: string;
+  started_at: string;
+  ended_at: string | null;
+  category: string | null;
+  topic: string | null;
+  turn_count: number;
+  consecutive_fail_count: number;
+  resolved: boolean | null;
+  escalated: boolean;
+  rating: number | null;
 }
 
-const DATA_DIR = path.join(process.cwd(), '.data');
-const DATA_FILE = path.join(DATA_DIR, 'store.json');
-
-// A plain module-level Map does NOT reliably work here: Next.js compiles
-// each app/api/**/route.ts into its own bundle, and in practice each bundle
-// got its own copy of this module's state — /api/chat/rate and
-// /api/admin/stats never saw sessions created by /api/chat. Persisting to
-// a JSON file on disk sidesteps that bundling boundary entirely. Fine for
-// a single-instance MVP; a multi-instance deployment needs a real DB.
-function load(): RawData {
-  if (!existsSync(DATA_FILE)) return { sessions: {}, messages: {}, idCounter: 0 };
-  try {
-    return JSON.parse(readFileSync(DATA_FILE, 'utf-8'));
-  } catch {
-    return { sessions: {}, messages: {}, idCounter: 0 };
-  }
+interface ChatMessageRow {
+  id: string;
+  session_id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: string;
 }
 
-function save(data: RawData): void {
-  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-  writeFileSync(DATA_FILE, JSON.stringify(data), 'utf-8');
+function rowToSession(row: ChatSessionRow): ChatSession {
+  return {
+    id: row.id,
+    startedAt: row.started_at,
+    endedAt: row.ended_at,
+    category: (row.category as CategoryKey | null) ?? null,
+    topic: (row.topic as TopicKey | null) ?? null,
+    turnCount: row.turn_count,
+    consecutiveFailCount: row.consecutive_fail_count,
+    resolved: row.resolved,
+    escalated: row.escalated,
+    rating: row.rating,
+  };
 }
 
-function nextId(data: RawData): string {
-  data.idCounter += 1;
-  return `${Date.now()}-${data.idCounter}`;
+function rowToMessage(row: ChatMessageRow): ChatMessage {
+  return {
+    id: row.id,
+    sessionId: row.session_id,
+    role: row.role,
+    content: row.content,
+    createdAt: row.created_at,
+  };
 }
 
-class FileStore implements Store {
+function patchToRow(patch: Partial<ChatSession>): Partial<ChatSessionRow> {
+  const row: Partial<ChatSessionRow> = {};
+  if ('startedAt' in patch) row.started_at = patch.startedAt;
+  if ('endedAt' in patch) row.ended_at = patch.endedAt;
+  if ('category' in patch) row.category = patch.category;
+  if ('topic' in patch) row.topic = patch.topic;
+  if ('turnCount' in patch) row.turn_count = patch.turnCount;
+  if ('consecutiveFailCount' in patch) row.consecutive_fail_count = patch.consecutiveFailCount;
+  if ('resolved' in patch) row.resolved = patch.resolved;
+  if ('escalated' in patch) row.escalated = patch.escalated;
+  if ('rating' in patch) row.rating = patch.rating;
+  return row;
+}
+
+class SupabaseStore implements Store {
   async createSession(): Promise<ChatSession> {
-    const data = load();
-    const session: ChatSession = {
-      id: nextId(data),
-      startedAt: new Date().toISOString(),
-      endedAt: null,
+    const row: ChatSessionRow = {
+      id: crypto.randomUUID(),
+      started_at: new Date().toISOString(),
+      ended_at: null,
       category: null,
       topic: null,
-      turnCount: 0,
-      consecutiveFailCount: 0,
+      turn_count: 0,
+      consecutive_fail_count: 0,
       resolved: null,
       escalated: false,
       rating: null,
     };
-    data.sessions[session.id] = session;
-    data.messages[session.id] = [];
-    save(data);
-    return session;
+
+    const { data, error } = await supabaseServer.from('chat_sessions').insert(row).select().single();
+    if (error) throw error;
+    return rowToSession(data as ChatSessionRow);
   }
 
   async getSession(id: string): Promise<ChatSession | null> {
-    return load().sessions[id] ?? null;
+    const { data, error } = await supabaseServer.from('chat_sessions').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+    return data ? rowToSession(data as ChatSessionRow) : null;
   }
 
   async updateSession(id: string, patch: Partial<ChatSession>): Promise<ChatSession | null> {
-    const data = load();
-    const existing = data.sessions[id];
-    if (!existing) return null;
-    const updated = { ...existing, ...patch };
-    data.sessions[id] = updated;
-    save(data);
-    return updated;
+    const { data, error } = await supabaseServer
+      .from('chat_sessions')
+      .update(patchToRow(patch))
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data ? rowToSession(data as ChatSessionRow) : null;
   }
 
   async addMessage(sessionId: string, role: 'user' | 'assistant', content: string): Promise<ChatMessage> {
-    const data = load();
-    const message: ChatMessage = {
-      id: nextId(data),
-      sessionId,
+    const row: Omit<ChatMessageRow, 'created_at'> = {
+      id: crypto.randomUUID(),
+      session_id: sessionId,
       role,
       content,
-      createdAt: new Date().toISOString(),
     };
-    if (!data.messages[sessionId]) data.messages[sessionId] = [];
-    data.messages[sessionId].push(message);
-    save(data);
-    return message;
+
+    const { data, error } = await supabaseServer.from('chat_messages').insert(row).select().single();
+    if (error) throw error;
+    return rowToMessage(data as ChatMessageRow);
   }
 
   async getMessages(sessionId: string, limit = 20): Promise<ChatMessage[]> {
-    const list = load().messages[sessionId] ?? [];
-    return list.slice(-limit);
+    const { data, error } = await supabaseServer
+      .from('chat_messages')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data as ChatMessageRow[]).map(rowToMessage).reverse();
   }
 
   async getStats(range: StatsRange): Promise<DashboardStats> {
-    const data = load();
-    const sessions = Object.values(data.sessions).filter((s) => {
-      const started = new Date(s.startedAt);
-      return started >= range.from && started <= range.to;
-    });
+    const { data, error } = await supabaseServer
+      .from('chat_sessions')
+      .select('*')
+      .gte('started_at', range.from.toISOString())
+      .lte('started_at', range.to.toISOString());
+    if (error) throw error;
+
+    const sessions = (data as ChatSessionRow[]).map(rowToSession);
 
     const categoryCounts: Record<string, number> = {};
     const topicCounts: Record<string, number> = {};
@@ -196,4 +227,4 @@ class FileStore implements Store {
   }
 }
 
-export const store: Store = new FileStore();
+export const store: Store = new SupabaseStore();

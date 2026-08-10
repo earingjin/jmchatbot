@@ -1,14 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { CategoryBarChart } from '@/components/dashboard/CategoryBarChart';
-import { StatCard } from '@/components/dashboard/StatCard';
+import { CategoryBarChart } from './CategoryBarChart';
+import { StatCard } from './StatCard';
+import { TopicRankList } from './TopicRankList';
 import type { DashboardStats } from '@/lib/store';
 
 type Range = 'today' | 'week' | 'month';
 
-export default function AdminDashboardPage() {
+/**
+ * 챗봇 이용 현황 섹션 (기존 app/admin/dashboard/page.tsx의 내용을 분리).
+ * 상담 현황(AdminDashboard)과 상하로 배치되는 섹션이라 페이지 제목은
+ * 상위 page.tsx가 담당한다.
+ */
+export function ChatDashboard() {
   const [range, setRange] = useState<Range>('today');
   const [stats, setStats] = useState<DashboardStats | null>(null);
 
@@ -19,44 +24,36 @@ export default function AdminDashboardPage() {
   }, [range]);
 
   if (!stats) {
-    return <p>불러오는 중...</p>;
+    return <p style={{ padding: 24, color: 'var(--ink-soft)' }}>불러오는 중...</p>;
   }
 
   const resolutionRate = stats.endedCount ? Math.round((stats.resolvedCount / stats.endedCount) * 100) : 0;
   const escalationRate = stats.totalSessions ? Math.round((stats.escalatedCount / stats.totalSessions) * 100) : 0;
 
   return (
-    <main>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
-        <h1 style={{ fontSize: 20, margin: 0 }}>관리자 대시보드</h1>
-        <Link href="/admin/documents" style={{ color: '#e4531f', fontSize: 13, fontWeight: 800 }}>AI 참고자료 관리 →</Link>
-      </div>
-
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+    <div>
+      <div className="tabs">
         {(['today', 'week', 'month'] as const).map((r) => (
-          <button
-            key={r}
-            onClick={() => setRange(r)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 8,
-              border: r === range ? '2px solid #2563eb' : '1px solid #ddd',
-              background: '#fff',
-            }}
-          >
+          <div key={r} className={`tab ${r === range ? 'active' : ''}`} onClick={() => setRange(r)}>
             {r === 'today' ? '오늘' : r === 'week' ? '이번 주' : '이번 달'}
-          </button>
+          </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div className="stat-grid">
         <StatCard label="총 문의" value={`${stats.totalSessions}건`} />
         <StatCard label="AI 해결률" value={`${resolutionRate}%`} />
         <StatCard label="상담사 전환율" value={`${escalationRate}%`} />
         <StatCard label="평균 만족도" value={stats.avgRating ? `★${stats.avgRating.toFixed(1)}` : '-'} />
       </div>
 
-      <CategoryBarChart counts={stats.categoryCounts} />
-    </main>
+      <div className="card">
+        <CategoryBarChart counts={stats.categoryCounts} />
+      </div>
+
+      <div className="card">
+        <TopicRankList topics={stats.topTopics} />
+      </div>
+    </div>
   );
 }

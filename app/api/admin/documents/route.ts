@@ -1,17 +1,22 @@
 import { NextResponse } from 'next/server';
-import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { getSession } from '@/lib/auth';
 import { createDocumentId, listDocuments, saveNewDocument } from '@/lib/knowledge/documentStore';
 import { extractDocumentChunks, validateDocumentUpload } from '@/lib/knowledge/documentParser';
 
 export const runtime = 'nodejs';
 
+async function isAdmin() {
+  const session = await getSession();
+  return session?.role === 'admin';
+}
+
 export async function GET() {
-  if (!(await isAdminAuthenticated())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!(await isAdmin())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   return NextResponse.json({ documents: listDocuments() });
 }
 
 export async function POST(request: Request) {
-  if (!(await isAdminAuthenticated())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!(await isAdmin())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   try {
     const formData = await request.formData();
     const file = formData.get('file');
