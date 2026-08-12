@@ -21,9 +21,9 @@ export function RoleSelect() {
         <div>
           <div className="lv-eyebrow">AI 상담 · 상담기록 통합 포털</div>
           <h1 className="lv-title">
-            AI가 먼저 응답하고,
+            운영 및 관리
             <br />
-            필요한 순간 사람이 이어받습니다.
+            통합 포털
           </h1>
           <p className="lv-desc">
             익명 사용자는 챗봇에서 바로 도움을 받고, 상담사·관리자·국방전직교육원 담당자는
