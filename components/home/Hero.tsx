@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import banner from './banner.png';
+import hero3 from './hero3.png';
 
 const SLIDES = [
+  { src: hero3, alt: '버크만 진로 안내' },
   { src: '/images/hero.png', alt: '버크만 진로 안내' },
   { src: banner, alt: '배너 이미지' },
 ];
